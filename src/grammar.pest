@@ -1,0 +1,4 @@
+mp3_header = { byte+ }
+
+hex = _{ '0'..'9' | 'a'..'f' | 'A'..'F' }
+byte = { hex{2} }
