@@ -1,4 +1,42 @@
-mp3_header = { byte+ }
+mp3_header = { hex_byte+ }
+
+mp3_base2_content = _{
+  (important_bin_shape_a
+  | important_bin_shape_b
+  | bin_zero_byte 
+  | binary_byte
+  )+
+}
+
+mp3_hex_content = _{
+  (important_hex_shape_a
+  | important_hex_shape_b
+  | hex_zero_byte
+  | hex_byte
+  )+
+}
 
 hex = _{ '0'..'9' | 'a'..'f' | 'A'..'F' }
-byte = { hex{2} }
+binary = _{ "0" | "1" }
+
+hex_zero_byte = _{ "00" }
+bin_zero_byte = _{ "00000000" }
+
+binary_byte = { binary{8} }
+hex_byte = { hex{2} }
+
+important_bit = { binary }
+important_hex = { hex }
+
+important_4f = _{ "4F" | "4f" }
+important_70 = _{ "70" }
+
+important_hex_shape_a = { hex_byte ~ important_4f  }
+important_hex_shape_b = {important_70 ~ hex_byte }
+
+important_1 = _{ "1" }
+important_110 = _{ "110" }
+
+important_bin_shape_a = { binary{2} ~ important_1 ~ binary{5} ~ binary_byte }
+important_bin_shape_b = { important_110 ~ binary{5} ~ binary_byte{3} }
+
