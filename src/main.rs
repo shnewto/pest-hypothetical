@@ -14,21 +14,14 @@ pub struct BinaryParser;
 type Mp3Parse<'a> = pest::iterators::Pair<'a, Rule>;
 
 fn main() -> std::io::Result<()> {
-    let fname = "res/ghohor017_15_owlcreekbridge_bierce_lems_64kb.mp3";
-    let buffer = std::fs::read(fname)?;
-    let hexbuffer = hex::encode(&buffer);
-
-    // maybe something like this if you want all base 2 data to parse...?
-    let _base2buffer = buffer
-        .into_iter()
-        .map(|n| format!("{}", radix_fmt::radix(n, 2)))
-        .collect::<Vec<String>>();
+    let u8_bytes = include_bytes!("../res/ghohor017_15_owlcreekbridge_bierce_lems_64kb.mp3");
+    let str_bytes = hex::encode(u8_bytes);
 
     let mut m: usize = 0;
     let mut n: usize = 3;
-    let end: usize = hexbuffer.len() - 1;
+    let end: usize = str_bytes.len() - 1;
 
-    let header: Mp3Parse = BinaryParser::parse(Rule::mp3_header, &hexbuffer[m..n])
+    let header: Mp3Parse = BinaryParser::parse(Rule::mp3_header, &str_bytes[m..n])
         .unwrap()
         .next()
         .unwrap();
@@ -40,7 +33,7 @@ fn main() -> std::io::Result<()> {
     while n < end {
         let mut step = 4;
 
-        let parsed_data = BinaryParser::parse(Rule::mp3_hex_content, &hexbuffer[m..n])
+        let parsed_data = BinaryParser::parse(Rule::mp3_hex_content, &str_bytes[m..n])
             .unwrap()
             .next();
 
@@ -54,7 +47,7 @@ fn main() -> std::io::Result<()> {
                     } else {
                         step = 8;
                     }
-                    println! {"got importnat shape a: {:?}", value.as_str()};
+                    println! {"got important shape a: {:?}", value.as_str()};
                 }
 
                 Rule::important_hex_shape_b => {
@@ -65,7 +58,7 @@ fn main() -> std::io::Result<()> {
                     } else {
                         step = 10;
                     }
-                    println! {"got importnat shape b: {:?}", value.as_str()};
+                    println! {"got important shape b: {:?}", value.as_str()};
                 }
 
                 Rule::hex_byte => {
@@ -80,7 +73,7 @@ fn main() -> std::io::Result<()> {
         }
 
         m = n;
-        n = n + step;
+        n += step;
     }
 
     Ok(())
